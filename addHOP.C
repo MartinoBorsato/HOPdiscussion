@@ -123,15 +123,26 @@ void addHOP()
     KstarMom.SetPxPyPzE( Kst_PX, Kst_PY, Kst_PZ, Kst_PE );
     ScaledBMom = ScaledL1Mom + ScaledL2Mom + KstarMom  ;
     ScaledJpsiMom = ScaledL1Mom + ScaledL2Mom ; 
-    ScaledJpsiMom_fixM.SetXYZM( JPs_SF*JPs_PX, JPs_SF*JPs_PY, JPs_SF*JPs_PZ, PDG_JPs_M );
-    ScaledJpsiMom_measM.SetXYZM( JPs_SF*JPs_PX, JPs_SF*JPs_PY, JPs_SF*JPs_PZ, JPs_MM );
+    
+    ScaledJpsiMom_fixM.SetXYZM( JPs_SF*JPs_PX, JPs_SF*JPs_PY, JPs_SF*JPs_PZ, PDG_JPs_M ); 
+    //this cannot be used in general, we agree
+    
+    ScaledJpsiMom_measM.SetXYZM( JPs_SF*JPs_PX, JPs_SF*JPs_PY, JPs_SF*JPs_PZ, JPs_MM ); 
+    // This is more complicated. But it seems not very coherent to me: 
+    // you compute the correction for the missed energy (brem) from pTKstar/pTY
+    // you apply it to the 3-momentum of the dielectron, but at the same time
+    // you take the measured dielectron mass (JPs_MM), which is affected by the brem loss
+    // and you use it to compute the dielectron energy. I think the effect will be that the 
+    // energy will be lower to compensate the fact that the corrected 3-momentum is larger.
+    // But since there is a brem loss, the final dielectron energy should be larger.
+    
     ScaledBMom_fixJPsM = ScaledJpsiMom_fixM + KstarMom;
     ScaledBMom_measJPsM = ScaledJpsiMom_measM + KstarMom;
 
-    HopM = ScaledBMom.M();
-    HopM_fixJPsM = ScaledBMom_fixJPsM.M();
-    HopM_measJPsM = ScaledBMom_measJPsM.M();
-    HopMee = ScaledJpsiMom.M();
+    HopM = ScaledBMom.M(); // This would be my choice
+    HopM_fixJPsM = ScaledBMom_fixJPsM.M(); // not general
+    HopM_measJPsM = ScaledBMom_measJPsM.M(); //not sure what it will give (see above)
+    HopMee = ScaledJpsiMom.M(); // This is also interesting
 
     Hop_branch->Fill();
     HopM_branch->Fill();
